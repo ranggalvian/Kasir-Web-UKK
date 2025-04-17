@@ -44,6 +44,33 @@ const MainMenuConfig: Array<MenuItem> = [
                     },
                 ],
             },
+                // produk
+            {
+                sectionTitle: "Info Produk",
+                route: "/info_produk",
+                keenthemesIcon: "shop",
+                name: "info-produk",
+                sub: [
+                    {
+                        heading: "Produk",
+                        name: "daftar-produk",
+                        route: "/dashboard/info_produk/produk",
+                    },
+                    {
+                        heading: "Kategori",
+                        name: "produk-kategori",
+                        route: "/dashboard/info_produk/kategori",
+                    },  
+                ],
+            },
+
+            {
+                heading: "Pembelian",
+                route: "/dashboard/pembelian",
+                name: "pembelian-produk",
+                keenthemesIcon: "handcart"
+            },
+
             {
                 heading: "Setting",
                 route: "/dashboard/setting",

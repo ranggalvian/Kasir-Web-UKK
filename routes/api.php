@@ -4,6 +4,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\PembelianController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -49,5 +52,32 @@ Route::middleware(['auth', 'verified', 'json'])->group(function () {
             Route::apiResource('roles', RoleController::class)
                 ->except(['index', 'store']);
         });
+
+        Route::middleware('can:daftar-produk')->group(function () {
+            // Route tambahan untuk ambil semua produk dan kategori (tanpa pembatasan permission)
+            Route::get('produk/all', [ProdukController::class, 'get'])->withoutMiddleware('can:daftar-produk');
+            Route::get('kategori/all', [KategoriController::class, 'get'])->withoutMiddleware('can:daftar-produk');
+        
+            // Route lainnya
+            Route::post('produk', [ProdukController::class, 'index']);
+            Route::post('produk/store', [ProdukController::class, 'store']);
+            Route::apiResource('produk', ProdukController::class)->except(['index', 'store']);
+        });
+
+        Route::middleware('can:produk-kategori')->group(function () {
+            Route::get('kategori', [KategoriController::class, 'get'])->withoutMiddleware('can:produk-kategori');
+            Route::post('kategori', [KategoriController::class, 'index']);
+            Route::post('kategori/store', [KategoriController::class, 'store']);
+            Route::apiResource('kategori', KategoriController::class)->except(['index', 'store']);
+        });
+        Route::middleware('can:pembelian-produk')->group(function () {
+        Route::get('pembelian', [PembelianController::class, 'index']);
+        Route::post('pembelian', [PembelianController::class, 'store']);
+        Route::delete('pembelian/{id}', [PembelianController::class, 'destroy']);
+        Route::get('pembelian/produk', [PembelianController::class, 'dataProduk']);
+        
+        });
+        
+
     });
 });

@@ -13,16 +13,16 @@ const openForm = ref<boolean>(false);
 const { delete: deleteUser } = useDelete({
     onSuccess: () => paginateRef.value.refetch(),
 });
-
+// BAGIAN ROLE
 const columns = [
-    column.accessor("no", {
+    column.accessor("no", {                             
         header: "#",
     }),
     column.accessor("name", {
         header: "Nama",
     }),
     column.accessor("full_name", {
-        header: "Full Name",
+        header: "Full Nama",
     }),
     column.accessor("id", {
         header: "Aksi",

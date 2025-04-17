@@ -73,8 +73,41 @@ const routes: Array<RouteRecordRaw> = [
                     breadcrumbs: ["Master", "Users"],
                 },
             },
+            
+                        // PRODUK
+            {
+                path: "/dashboard/info_produk/produk",
+                name: "dashboard.info_produk.produk",
+                component: () => import("@/pages/dashboard/info_produk/produk.vue"),
+                meta: {
+                    pageTitle: "Menu",
+                    breadcrumbs: ["MAKAN", "MINUM"],
+                },
+            },
+                        // KATEGORI
+            {
+                path: "/dashboard/info_produk/kategori",
+                name: "dashboard.info_produk.kategori",
+                component: () => import("@/pages/dashboard/info_produk/kategori.vue"),
+                meta: {
+                    pageTitle: "Kategori menu",
+                    breadcrumbs: ["Info Menu", "Kategori"],
+                },
+            },    
+
+                    // pembelian
+            {
+                path: "/dashboard/pembelian",
+                name: "dashboard.pembelian",
+                component: () => import("@/pages/dashboard/pembelian/Index.vue"),
+                meta: {
+                    pageTitle: "List Pembelian",
+                    breadcrumbs: ["Pemesanan", "Menu"],
+                },
+            },    
         ],
     },
+
     {
         path: "/",
         component: () => import("@/layouts/AuthLayout.vue"),

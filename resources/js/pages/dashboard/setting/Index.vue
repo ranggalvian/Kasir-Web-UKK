@@ -33,7 +33,7 @@
                     <!--end::Input group-->
 
                     <!--begin::Input group-->
-                    <div class="fv-row mb-8">
+                    <!-- <div class="fv-row mb-8">
                         <label class="form-label fw-bold fs-6 required">Pemerintahan</label>
                         <Field class="form-control form-control-lg form-control-solid" type="text" name="pemerintah"
                             autocomplete="off" v-model="formData.pemerintah" />
@@ -42,11 +42,11 @@
                                 <ErrorMessage name="pemerintah" />
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <!--end::Input group-->
 
                     <!--begin::Input group-->
-                    <div class="fv-row mb-8">
+                    <!-- <div class="fv-row mb-8">
                         <label class="form-label fw-bold fs-6 required">Alamat</label>
                         <Field class="form-control form-control-lg form-control-solid" type="text" name="alamat"
                             autocomplete="off" v-model="formData.alamat" />
@@ -56,10 +56,10 @@
                             </div>
                         </div>
                     </div>
-                    <!--end::Input group-->
+                    <!end::Input group-->
 
                     <!--begin::Input group-->
-                    <div class="fv-row mb-8">
+                    <!-- <div class="fv-row mb-8">
                         <label class="form-label fw-bold fs-6 required">Telepon</label>
                         <Field class="form-control form-control-lg form-control-solid" type="text" name="telepon"
                             autocomplete="off" v-model="formData.telepon" />
@@ -68,11 +68,11 @@
                                 <ErrorMessage name="telepon" />
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <!--end::Input group-->
 
                     <!--begin::Input group-->
-                    <div class="fv-row mb-8">
+                    <!-- <div class="fv-row mb-8">
                         <label class="form-label fw-bold fs-6 required">Email</label>
                         <Field class="form-control form-control-lg form-control-solid" type="text" name="email"
                             autocomplete="off" v-model="formData.email" />
@@ -81,7 +81,7 @@
                                 <ErrorMessage name="email" />
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <!--end::Input group-->
                 </div>
 
@@ -149,12 +149,9 @@ export default defineComponent({
         })
 
         const formSchema = Yup.object().shape({
-            alamat: Yup.string().required('Alamat wajib diisi'),
             app: Yup.string().required('Nama aplikasi wajib diisi'),
             description: Yup.string().required('Deskripsi wajib diisi'),
-            email: Yup.string().required('Email wajib diisi'),
-            pemerintah: Yup.string().required('Nama pemerintah wajib diisi'),
-            telepon: Yup.string().required('Telepon wajib diisi'),
+            
         })
 
         return {
