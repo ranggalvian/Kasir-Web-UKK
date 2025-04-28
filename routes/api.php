@@ -7,6 +7,8 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\PembelianController;
+use App\Http\Controllers\DetailPemesananController;
+use App\Http\Controllers\RiwayatPemesananController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -57,16 +59,19 @@ Route::middleware(['auth', 'verified', 'json'])->group(function () {
             // Route tambahan untuk ambil semua produk dan kategori (tanpa pembatasan permission)
             Route::get('produk/all', [ProdukController::class, 'get'])->withoutMiddleware('can:daftar-produk');
             Route::get('kategori/all', [KategoriController::class, 'get'])->withoutMiddleware('can:daftar-produk');
-        
-            // Route lainnya
-            Route::post('produk', [ProdukController::class, 'index']);
+            Route::put('produk/switch/{id_produk}', [ProdukController::class, 'Ketersediaan']);
+            
+            // Route lainnya    
+            Route::post('produk', [ProdukController::class, 'index'])->withoutMiddleware('can:daftar-produk');;
             Route::post('produk/store', [ProdukController::class, 'store']);
             Route::apiResource('produk', ProdukController::class)->except(['index', 'store']);
+       
+
         });
 
         Route::middleware('can:produk-kategori')->group(function () {
             Route::get('kategori', [KategoriController::class, 'get'])->withoutMiddleware('can:produk-kategori');
-            Route::post('kategori', [KategoriController::class, 'index']);
+            Route::post('kategori', [KategoriController::class, 'index'])->withoutMiddleware('can:produk-kategori');
             Route::post('kategori/store', [KategoriController::class, 'store']);
             Route::apiResource('kategori', KategoriController::class)->except(['index', 'store']);
         });
@@ -77,7 +82,20 @@ Route::middleware(['auth', 'verified', 'json'])->group(function () {
         Route::get('pembelian/produk', [PembelianController::class, 'dataProduk']);
         
         });
-        
+
+
+        Route::middleware('can:Detail-Pembelian')->group(function () {
+            Route::get('pembelian', [PembelianController::class, 'index']);
+            Route::post('pembelian', [PembelianController::class, 'store']);
+            Route::delete('pembelian/{id}', [PembelianController::class, 'destroy']);
+            Route::get('pembelian/produk', [PembelianController::class, 'dataProduk']);
+            
+        });
+
+        Route::middleware('can:pembelian-produk')->group(function () {
+            Route::post('riwayat-pemesanan', [RiwayatPemesananController::class, 'store']);
+            Route::get('riwayat-pemesanan', [RiwayatPemesananController::class, 'index']);
+        });
 
     });
 });

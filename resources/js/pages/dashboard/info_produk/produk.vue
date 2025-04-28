@@ -31,35 +31,39 @@ const columns = [
     column.accessor("harga", {
         header: "Harga",
     }),
-    column.accessor("ketersediaan", {
+    column.accessor("id_produk", {
   header: "Ketersediaan",
-  cell: (cell) =>
-    h("div", { class: "d-flex gap-2" }, [
-      h(
-        "button",
-        {
-          class: `btn btn-sm ${
-            cell.getValue() === "Tidak Tersedia" ? "btn-danger" : "btn-success"
-          }`,
-          onClick: async () => {
-            const item = cell.row.original;
-            const newStatus = item.ketersediaan === "Tersedia" ? "Tidak Tersedia" : "Tersedia";
-            item.ketersediaan = newStatus;
-
-            try {
-              await ApiService.put(`/master/produk/${item.id_produk}`, {
-                ketersediaan: newStatus,
-              });
-            } catch (error) {
-              console.error("Gagal update status:", error);
-              // Rollback status jika gagal
-              item.ketersediaan = newStatus === "Tersedia" ? "Tidak Tersedia" : "Tersedia";
-            }
+  cell: (cell) =>{
+      const item = cell.row.original;
+      ;
+    
+      return h("div", { class: "d-flex gap-2" }, [
+        h(
+          "button",
+          {
+            class: `btn btn-sm ${
+              item.ketersediaan === "Tidak Tersedia" ? "btn-danger" : "btn-success"
+            }`,
+            onClick: async () => {
+            const newStatus = item.ketersediaan === "Tersedia" ? "Tidak Tersedia" : "Tersedia"
+              item.ketersediaan = newStatus;
+  
+              try {
+                await ApiService.put(`/master/produk/switch/${cell.getValue()}`, {
+                  ketersediaan: newStatus,
+                });
+                refresh();
+              } catch (error) {
+                console.error("Gagal update status:", error);
+                // Rollback status jika gagal
+                
+              }
+            },
           },
-        },
-        h("h", cell.getValue())
-      ),
-    ]),
+          h("h", item.ketersediaan) //terakhir ega
+        ),
+      ]);
+  },
 
 
     }),

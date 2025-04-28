@@ -9,14 +9,14 @@ use Illuminate\Support\Facades\DB;
 
 class PembelianController extends Controller
 {
-    // ✅ Ambil semua data pembelian
+    //Ambil semua data pembelian
     public function index()
     {
         $data = Pembelian::orderBy('created_at', 'desc')->get();
         return response()->json($data);
     }
 
-    // ✅ Simpan data pembelian
+    //Simpan data pembelian
     public function store(Request $request)
     {
         $request->validate([
@@ -53,5 +53,10 @@ class PembelianController extends Controller
         }])->get();
 
         return response()->json($kategori);
+    }
+
+        public function detail_pemesanan()
+    {
+        return $this->hasMany(Detail_pemesanan::class, 'id_pembelian');
     }
 }

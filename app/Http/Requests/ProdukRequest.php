@@ -22,7 +22,9 @@ class ProdukRequest extends FormRequest
     public function rules(): array
     {
         return [
-            
+            'harga' => 'required',
+            'id_kategori' => 'required',
+            'nama_produk' => 'required'
         ];
     }
 }

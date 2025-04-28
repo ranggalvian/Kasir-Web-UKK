@@ -58,7 +58,6 @@
               class="d-flex justify-content-between align-items-center border-bottom py-2"
             >
               <div class="d-flex align-items-center gap-2">
-                <!-- <div class="rounded bg-light" style="width: 40px; height: 40px;"></div> -->
                 <div>
                   <div class="fw-medium">{{ item.nama_produk }}</div>
                   <div class="text-muted small">Rp{{ item.harga }}</div>
@@ -77,13 +76,38 @@
           <div class="mt-4">
             <div class="d-flex justify-content-between text-muted small">
               <span>Total Item</span>
-              <span>{{ keranjang.length }}</span>
+              <span>{{ totalItem }}</span>
             </div>
             <div class="d-flex justify-content-between text-muted small mb-3">
               <span>Total Harga</span>
               <span>Rp{{ totalHarga }}</span>
             </div>
 
+            <!-- Input Jumlah Bayar -->
+            <div class="mb-3">
+              <label for="bayarJumlah" class="form-label fw-medium">Jumlah Bayar</label>
+              <input
+                id="bayarJumlah"
+                v-model.number="bayarJumlah"
+                type="number"
+                placeholder="Masukkan jumlah bayar"
+                class="form-control"
+                :class="{ 'is-invalid': bayarJumlah < totalHarga && bayarJumlah > 0 }"
+              />
+              <div v-if="bayarJumlah < totalHarga && bayarJumlah > 0" class="invalid-feedback">
+                Jumlah bayar kurang dari total harga!
+              </div>
+            </div>
+
+            <!-- Tampilkan Kembalian -->
+            <div v-if="bayarJumlah >= totalHarga && totalHarga > 0" class="mb-3">
+              <div class="d-flex justify-content-between">
+                <span class="fw-medium">Kembalian</span>
+                <span class="text-success fw-bold">Rp{{ kembalian }}</span>
+              </div>
+            </div>
+
+            <!-- Pilihan Metode Pembayaran -->
             <div class="mb-3">
               <label class="form-label fw-medium">Pembayaran Melalui</label>
               <div class="d-flex gap-2">
@@ -108,20 +132,17 @@
             <button
               class="btn btn-primary w-100 fw-semibold"
               @click="bayar"
-              :disabled="keranjang.length === 0"
+              :disabled="keranjang.length === 0 || bayarJumlah < totalHarga"
             >
               Pesan
             </button>
           </div>
+
         </div>
       </div>
     </div>
   </div>
 </template>
-
-
-
-
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
@@ -131,12 +152,12 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const produk = ref([])
-const kategori = ref(['Semua']) // 'Semua' ditambahkan manual untuk filter
+const kategori = ref(['Semua'])
 const kategoriAktif = ref('Semua')
 const keranjang = ref([])
 const metodePembayaran = ref('cash')
+const bayarJumlah = ref(0)
 
-// Ambil data produk dan kategori dari API saat mount
 onMounted(async () => {
   try {
     const resProduk = await axios.post('/master/produk')
@@ -150,12 +171,11 @@ onMounted(async () => {
   }
 })
 
-const produkFiltered = computed(() =>{
+const produkFiltered = computed(() => {
   return kategoriAktif.value === 'Semua'
     ? produk.value
-    : produk.value.filter(p => p.nama_kategori === kategoriAktif.value);
-}
-)
+    : produk.value.filter(p => p.nama_kategori === kategoriAktif.value)
+})
 
 const tambahKeKeranjang = (item) => {
   const found = keranjang.value.find(i => i.id_produk === item.id_produk)
@@ -187,11 +207,48 @@ const totalHarga = computed(() =>
   keranjang.value.reduce((sum, item) => sum + item.qty * item.harga, 0)
 )
 
-const bayar = () => {
-  if (metodePembayaran.value === 'cash') {
-    router.push({ path: '/pembelian/Form.vue', query: { metode: 'cash' } })
-  } else {
-    router.push({ path: '/pembelian/Form.vue', query: { metode: 'qris' } })
+const totalItem = computed(() =>
+  keranjang.value.reduce((sum, item) => sum + item.qty, 0)
+)
+
+const kembalian = computed(() => {
+  if (bayarJumlah.value >= totalHarga.value) {
+    return bayarJumlah.value - totalHarga.value
   }
+  return 0
+})
+
+const formatTanggalIndonesia = (date) => {
+  const d = new Date(date)
+  const tanggal = String(d.getDate()).padStart(2, '0')
+  const bulan = String(d.getMonth() + 1).padStart(2, '0')
+  const tahun = d.getFullYear()
+  const jam = String(d.getHours()).padStart(2, '0')
+  const menit = String(d.getMinutes()).padStart(2, '0')
+
+  return `${tanggal}-${bulan}-${tahun} ${jam}:${menit}`
+}
+
+const bayar = () => {
+  if (bayarJumlah.value < totalHarga.value) {
+    alert('Jumlah bayar kurang dari total harga!')
+    return
+  }
+
+  const metode = metodePembayaran.value === 'cash' ? 'cash' : 'qris'
+  const tanggalPemesanan = formatTanggalIndonesia(new Date())
+
+  router.push({
+    name: 'dashboard.pembelian.form',
+    query: {
+      metode: metode,
+      total_item: totalItem.value,
+      total_harga: totalHarga.value,
+      bayar: bayarJumlah.value,
+      kembalian: kembalian.value,
+      tanggal_pemesanan: tanggalPemesanan,
+      detail_produk: JSON.stringify(keranjang.value)
+    }
+  })
 }
 </script>

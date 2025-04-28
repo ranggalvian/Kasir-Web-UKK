@@ -46,18 +46,18 @@ const MainMenuConfig: Array<MenuItem> = [
             },
                 // produk
             {
-                sectionTitle: "Info Produk",
+                sectionTitle: "Info Menu",
                 route: "/info_produk",
                 keenthemesIcon: "shop",
                 name: "info-produk",
                 sub: [
                     {
-                        heading: "Produk",
+                        heading: "Menu",
                         name: "daftar-produk",
                         route: "/dashboard/info_produk/produk",
                     },
                     {
-                        heading: "Kategori",
+                        heading: "Kategori Menu",
                         name: "produk-kategori",
                         route: "/dashboard/info_produk/kategori",
                     },  
@@ -69,6 +69,14 @@ const MainMenuConfig: Array<MenuItem> = [
                 route: "/dashboard/pembelian",
                 name: "pembelian-produk",
                 keenthemesIcon: "handcart"
+            },
+
+            {
+                heading: "Riwayat pemesanan",
+                route: "/dashboard/riwayat-pemesanan",
+                name: "riwayat-pemesanan",
+                keenthemesIcon: "burger-menu"
+
             },
 
             {

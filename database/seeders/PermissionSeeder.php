@@ -21,11 +21,12 @@ class PermissionSeeder extends Seeder
 
         $menuMaster = ['master', 'master-user', 'master-role',];
         $menuProduk = ['info-produk', 'daftar-produk', 'produk-kategori' ];
-        $menuPembelian = ['pembelian-produk'];
+        $menuPembelian = ['pembelian-produk', 'Detail=Pemesanan'];
+        $menuRiwayat = ['riwayat-pemesanan'];
         $menuWebsite = ['website', 'setting'];
 
         $permissionsByRole = [
-            'admin' => ['dashboard', ...$menuMaster, ...$menuWebsite , ...$menuProduk, ...$menuPembelian],
+            'admin' => ['dashboard', ...$menuMaster, ...$menuWebsite , ...$menuProduk, ...$menuPembelian, ...$menuRiwayat],
         ];
 
         $insertPermissions = fn ($role) => collect($permissionsByRole[$role])

@@ -1,100 +1,200 @@
 <template>
-  <div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded shadow">
-    <h2 class="text-2xl font-semibold mb-4">Pembayaran</h2>
-
-    <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">Total Harga</label>
-      <div class="mt-1 text-lg font-semibold">Rp{{ totalHarga }}</div>
-    </div>
-
-    <div class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">Metode Pembayaran</label>
-      <div class="mt-1">{{ metodePembayaran }}</div>
-    </div>
-
-    <div v-if="metodePembayaran === 'cash'" class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">Uang Diberikan</label>
-      <input
-        type="number"
-        v-model.number="bayar"
-        class="mt-1 block w-full border border-gray-300 p-2 rounded"
-        placeholder="Masukkan jumlah uang"
-      />
-      <div v-if="bayar >= totalHarga" class="text-green-600 mt-1">Kembalian: Rp{{ kembalian }}</div>
-      <div v-else class="text-red-500 mt-1">Uang tidak cukup</div>
-    </div>
-
-    <div v-else-if="metodePembayaran === 'qris'" class="mb-4">
-      <label class="block text-sm font-medium text-gray-700">Scan QRIS untuk membayar</label>
-      <div class="mt-2">
-       
-        <img src="/img/qris-placeholder.png" alt="QRIS" class="w-40 h-40 object-contain" />
+<div v-if="showQRModal">
+  <div class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+      <div class="modal-content text-center p-4">
+        <h5 class="fw-bold">Silakan Scan QRIS</h5>
+        <img src="/media/qrcode.jpg" alt="QRIS" class="rounded mx-auto d-block" style="max-width: 250px;" />
+        <button class="btn btn-secondary btn-sm" @click="tutupQR">Tutup</button>
       </div>
     </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+</div>
 
-    <button
-      class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 mt-4"
-      :disabled="metodePembayaran === 'cash' && bayar < totalHarga"
-      @click="submitPembelian"
-    >
-      Konfirmasi & Simpan
-    </button>
+
+  <!-- Modal Konfirmasi Pembayaran -->
+  <div v-if="showModal">
+    <div class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true" role="dialog">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h5 class="modal-title">Konfirmasi Pembayaran</h5>
+            <button type="button" class="btn-close" @click="closeModal"></button>
+          </div>
+
+          <div class="modal-body">
+            <div class="d-flex">
+              <h6 class="me-3">Kasir : </h6>
+              <span>{{ kasir }}</span>
+            </div>
+            <h6 class="fw-bold">Daftar Produk:</h6>
+            <ul class="list-group list-group-flush mb-3">
+              <li v-for="(item, index) in pembelian.detail_produk" :key="index" class="list-group-item d-flex justify-content-between p-2">
+                <span>{{ item.nama_produk }} x{{ item.qty }}</span>
+                <span>{{ formatRupiah(item.harga * item.qty) }}</span>
+              </li>
+            </ul>
+
+            <h6 class="fw-bold">Pembayaran:</h6>
+            <ul class="list-group list-group-flush">
+              <li v-for="(info, key) in pembayaranInfo" :key="key" class="list-group-item d-flex justify-content-between p-2">
+                <span>{{ info.label }}</span>
+                <span>{{ info.value }}</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="modal-footer justify-content-end gap-2">
+            <button type="button" class="btn btn-success btn-sm" @click="konfirmasi_pembayaran">OK</button>
+            <button type="button" class="btn btn-danger btn-sm" @click="closeModal">Batal</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+  </div>
+
+  <!-- Struk Pembayaran -->
+  <div v-if="showPrint" class="container py-4 d-flex justify-content-center">
+    <div class="p-4 bg-white" style="width: 300px; border: 1px dashed #ccc;">
+      <h5 class="text-center mb-3 fw-bold">STRUK PEMBAYARAN</h5>
+
+      <div class="small mb-2" v-for="(item, index) in pembelian.detail_produk" :key="index">
+        <div class="d-flex justify-content-between">
+          <span>{{ item.nama_produk }} x{{ item.qty }}</span>
+          <span>{{ formatRupiah(item.harga * item.qty) }}</span>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="small mb-2" v-for="(info, key) in pembayaranInfo" :key="key">
+        <div class="d-flex justify-content-between">
+          <span>{{ info.label }}</span>
+          <span>{{ info.value }}</span>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="d-grid gap-2 mt-3">
+        <button class="btn btn-primary btn-sm" @click="printStruk">Cetak Struk</button>
+        <button class="btn btn-secondary btn-sm" @click="kembali">Kembali</button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import axios from '@/libs/axios'
+import { ref, computed, onMounted } from 'vue'
+import { useAuthStore } from "@/stores/auth";
+import axios from 'axios'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const router = useRouter()
+const store = useAuthStore()
+const kasir = store.user.name
 
-const metodePembayaran = route.query.metode || 'cash'
-const totalHarga = ref(0)
-const bayar = ref(0)
+const pembelian = ref({
+  metode: route.query.metode || '',
+  total_item: route.query.total_item || 0,
+  total_harga: route.query.total_harga || 0,
+  bayar: route.query.bayar || 0,
+  kembalian: route.query.kembalian || 0,
+  tanggal_pemesanan: route.query.tanggal_pemesanan || '',
+  detail_produk: JSON.parse(route.query.detail_produk || '[]')
+})
 
+const showModal = ref(false)
+const showQRModal = ref(false)
+const showPrint = ref(false)
 
-const keranjang = ref([])
+const pembayaranInfo = computed(() => [
+  { label: 'Metode', value: pembelian.value.metode },
+  { label: 'Total Item', value: pembelian.value.total_item },
+  { label: 'Total Harga', value: formatRupiah(pembelian.value.total_harga) },
+  { label: 'Jumlah Bayar', value: formatRupiah(pembelian.value.bayar) },
+  { label: 'Kembalian', value: formatRupiah(pembelian.value.kembalian) },
+  { label: 'Tanggal', value: pembelian.value.tanggal_pemesanan }
+])
 
 onMounted(() => {
-  
-  const dataKeranjang = localStorage.getItem('keranjang')
-  const total = localStorage.getItem('total_harga')
-
-  if (dataKeranjang) {
-    keranjang.value = JSON.parse(dataKeranjang)
-  }
-  if (total) {
-    totalHarga.value = parseInt(total)
+  if (pembelian.value.metode.toLowerCase() === 'qris') {
+    showQRModal.value = true
+  } else {
+    showModal.value = true
   }
 })
 
-const kembalian = computed(() => bayar.value - totalHarga.value)
+const tutupQR = () => {
+  showQRModal.value = false
+  showModal.value = true
+}
 
-const submitPembelian = async () => {
+const closeModal = () => {
+  showModal.value = false
+  router.back()
+}
+
+const konfirmasi_pembayaran = async () => {
   try {
-    const payload = {
-      total_item: keranjang.value.reduce((acc, item) => acc + item.qty, 0),
-      total_harga: totalHarga.value,
-      bayar: metodePembayaran === 'cash' ? bayar.value : totalHarga.value,
-      metode: metodePembayaran,
-      items: keranjang.value.map(item => ({
-        id_produk: item.id,
-        qty: item.qty,
-        harga: item.harga
-      }))
-    }
+    await axios.post('/master/riwayat-pemesanan', {
+      kasir: store.user.id,
+      metode: pembelian.value.metode,
+      total_item: pembelian.value.total_item,
+      total_harga: pembelian.value.total_harga,
+      bayar: pembelian.value.bayar,
+      kembalian: pembelian.value.kembalian,
+      tanggal_pemesanan: pembelian.value.tanggal_pemesanan,
+      detail_produk: pembelian.value.detail_produk
+    })
+    
 
-    await axios.post('/transaksi/pembelian', payload)
+    await Swal.fire({
+      icon: 'success',
+      title: 'Pembayaran Berhasil',
+      text: 'Data berhasil disimpan ke Riwayat!',
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#0d6efd'
+    })
 
-    alert('Pembelian berhasil disimpan!')
-    localStorage.removeItem('keranjang')
-    localStorage.removeItem('total_harga')
-    router.push('/')
-  } catch (err) {
-    console.error('Gagal menyimpan pembelian:', err)
-    alert('Terjadi kesalahan saat menyimpan pembelian.')
+    showModal.value = false
+    showPrint.value = true
+
+  } catch (error) {
+    console.error('Gagal menyimpan pembayaran:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops!',
+      text: 'Gagal menyimpan pembayaran!'
+    })
   }
 }
+
+const kembali = () => {
+  showPrint.value = false
+  router.back()
+}
+
+const printStruk = () => {
+  window.print()
+}
+
+const formatRupiah = (value) => {
+  if (!value) return 'Rp0'
+  return 'Rp' + value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+}
 </script>
+
+<style scoped>
+@media print {
+  .btn {
+    display: none;
+  }
+}
+</style>

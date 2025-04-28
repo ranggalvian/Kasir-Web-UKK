@@ -87,4 +87,8 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->getAllPermissions()->pluck('name');
     }
+
+    public function riwayat(){
+        return $this->hasMany(RiwayatPemesanan::class, 'kasir_id');
+    }
 }

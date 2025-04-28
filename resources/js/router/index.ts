@@ -96,15 +96,28 @@ const routes: Array<RouteRecordRaw> = [
             },    
 
                     // pembelian
+                    {
+                        path: "/dashboard/pembelian",
+                        name: "dashboard.pembelian",
+                        component: () => import("@/pages/dashboard/pembelian/Index.vue"),
+                        meta: {
+                            pageTitle: "List Menu",
+                            breadcrumbs: ["Pemesanan", "Menu"],
+                        },
+                    },
+
+            // riwayat pemesanan
             {
-                path: "/dashboard/pembelian",
-                name: "dashboard.pembelian",
-                component: () => import("@/pages/dashboard/pembelian/Index.vue"),
+                path: "/dashboard/riwayat-pemesanan",
+                name: "dashboard.riwayat-pemesanan",
+                component: () => import("@/pages/dashboard/Riwayat_pemesanan/Index.vue"),
                 meta: {
-                    pageTitle: "List Pembelian",
-                    breadcrumbs: ["Pemesanan", "Menu"],
+                    pageTitle: "Riwayat Pemesanan",
+                    breadcrumbs: ["Riwayat Pemesanan"],
                 },
-            },    
+            },
+
+
         ],
     },
 
@@ -122,6 +135,24 @@ const routes: Array<RouteRecordRaw> = [
                 },
             },
         ],
+    },
+    // {
+    //     path: "/dashboard/pembelian",
+    //     name: "dashboard.pembelian",
+    //     component: () => import("@/pages/dashboard/pembelian/Index.vue"),
+    //     meta: {
+    //         pageTitle: "List Menu",
+    //         breadcrumbs: ["Pemesanan", "Menu"],
+    //     },
+    // },
+    {
+        path: "/dashboard/pembelian",
+        name: "dashboard.pembelian.form",
+        component: () => import("@/pages/dashboard/pembelian/Form.vue"),
+        meta: {
+            pageTitle: "List Menu",
+            breadcrumbs: ["Pemesanan", "Menu"],
+        },
     },
     {
         path: "/",

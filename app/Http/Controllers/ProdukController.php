@@ -38,6 +38,21 @@ class ProdukController extends Controller
 
         return response()->json($data);
     }
+    //tombol button on/off
+    public function Ketersediaan($id_produk, Produk $produk){
+        $status = Produk::where('id_produk',$id_produk)->first('ketersediaan');
+        if($status->ketersediaan === 'Tersedia'){
+            $status = 'Tidak Tersedia';
+        } else {
+            $status = 'Tersedia';
+        }
+
+        $produk->where('id_produk',$id_produk)->update(['ketersediaan' => $status]);
+
+        return response()->json([
+            'success' => true,
+        ]);
+    }  
 
     public function store(ProdukRequest $request): JsonResponse
     {
@@ -79,4 +94,5 @@ class ProdukController extends Controller
             'message' => 'Produk berhasil dihapus'
         ]);
     }
+
 }
