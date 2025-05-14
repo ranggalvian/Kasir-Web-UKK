@@ -27,14 +27,22 @@
             v-for="item in produkFiltered"
             :key="item.id_produk"
             class="col"
-            @click="tambahKeKeranjang(item)"
+            @click="handleKlikProduk(item)"  
           >
-            <div class="card text-center h-100 p-3 d-flex flex-column justify-content-between shadow-sm" style="cursor: pointer;">
+            <div
+              class="card text-center h-100 p-3 d-flex flex-column justify-content-between shadow-sm"
+              :class="{
+                'opacity-50 bg-light text-muted': item.ketersediaan !== 'Tersedia', 
+                'cursor-pointer': true
+              }"
+            >
               <div>
                 <h5 class="fw-bold">{{ item.nama_produk }}</h5>
               </div>
               <div>
-                <p class="text-success fw-semibold">Rp{{ item.harga }}</p>
+                <p class="fw-semibold" :class="item.ketersediaan === 'Tersedia' ? 'text-success' : 'text-muted'">
+                  Rp{{ item.harga }}
+                </p>
               </div>
             </div>
           </div>
@@ -74,33 +82,48 @@
 
           <!-- Total & Bayar -->
           <div class="mt-4">
-            <div class="d-flex justify-content-between text-muted small">
+            <div class="d-flex justify-content-between font-weight-light small">
               <span>Total Item</span>
               <span>{{ totalItem }}</span>
             </div>
-            <div class="d-flex justify-content-between text-muted small mb-3">
+            <div class="d-flex justify-content-between font-weight-light small mb-5">
               <span>Total Harga</span>
               <span>Rp{{ totalHarga }}</span>
             </div>
 
             <!-- Input Jumlah Bayar -->
-            <div class="mb-3">
+            <!-- Input Jumlah Bayar -->
+            <div v-if="metodePembayaran === 'cash'" class="mb-3">
               <label for="bayarJumlah" class="form-label fw-medium">Jumlah Bayar</label>
               <input
                 id="bayarJumlah"
-                v-model.number="bayarJumlah"
-                type="number"
+                v-model="bayarJumlah"
+                type="text"
+                inputmode="numeric"
                 placeholder="Masukkan jumlah bayar"
                 class="form-control"
-                :class="{ 'is-invalid': bayarJumlah < totalHarga && bayarJumlah > 0 }"
+                :readonly="metodePembayaran === 'qris'"
+                :class="{
+                  'is-invalid':
+                    metodePembayaran === 'cash' &&
+                    bayarJumlahRaw < totalHarga &&
+                    bayarJumlahRaw > 0
+                }"
               />
-              <div v-if="bayarJumlah < totalHarga && bayarJumlah > 0" class="invalid-feedback">
+              <div
+                v-if="metodePembayaran === 'cash' && bayarJumlahRaw < totalHarga && bayarJumlahRaw > 0"
+                class="invalid-feedback"
+              >
                 Jumlah bayar kurang dari total harga!
               </div>
             </div>
 
-            <!-- Tampilkan Kembalian -->
-            <div v-if="bayarJumlah >= totalHarga && totalHarga > 0" class="mb-3">
+
+            <!-- Kembalian hanya untuk cash -->
+            <div
+              v-if="metodePembayaran === 'cash' && bayarJumlah >= totalHarga && totalHarga > 0"
+              class="mb-3"
+            >
               <div class="d-flex justify-content-between">
                 <span class="fw-medium">Kembalian</span>
                 <span class="text-success fw-bold">Rp{{ kembalian }}</span>
@@ -132,7 +155,7 @@
             <button
               class="btn btn-primary w-100 fw-semibold"
               @click="bayar"
-              :disabled="keranjang.length === 0 || bayarJumlah < totalHarga"
+              :disabled="keranjang.length === 0 || (metodePembayaran === 'cash' && bayarJumlah < totalHarga)"
             >
               Pesan
             </button>
@@ -148,20 +171,38 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from '@/libs/axios'
 import { useRouter } from 'vue-router'
+import { toast } from "vue3-toastify"
 
 const router = useRouter()
 
 const produk = ref([])
-const kategori = ref(['Semua'])
+const kategori = ref(['Semua','Minuman','Makanan'])
 const kategoriAktif = ref('Semua')
 const keranjang = ref([])
 const metodePembayaran = ref('cash')
-const bayarJumlah = ref(0)
+
+// raw value (number) untuk input bayar
+const bayarJumlahRaw = ref(0)
+
+// format Rupiah otomatis saat diketik
+const bayarJumlah = computed({
+  get() {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+    }).format(bayarJumlahRaw.value)
+  },
+  set(val) {
+    const numeric = parseInt(val.replace(/[^0-9]/g, '')) || 0
+    bayarJumlahRaw.value = numeric
+  }
+})
 
 onMounted(async () => {
   try {
-    const resProduk = await axios.post('/master/produk')
-    produk.value = resProduk.data.data
+    const resProduk = await axios.get('/master/produk')
+    produk.value = resProduk.data
 
     const resKategori = await axios.post('/master/kategori')
     kategori.value = ['Semua', ...resKategori.data.data.map(k => k.nama_kategori)]
@@ -172,10 +213,20 @@ onMounted(async () => {
 })
 
 const produkFiltered = computed(() => {
-  return kategoriAktif.value === 'Semua'
-    ? produk.value
-    : produk.value.filter(p => p.nama_kategori === kategoriAktif.value)
+  if (kategoriAktif.value === 'Semua') {
+    return produk.value
+  } else {
+    return produk.value.filter(p => p.kategori.nama_kategori === kategoriAktif.value)
+  }
 })
+
+const handleKlikProduk = (item) => {
+  if (item.ketersediaan === 'Tersedia') {
+    tambahKeKeranjang(item)
+  } else {
+    toast.error("Menu Tidak Tersedia")
+  }
+}
 
 const tambahKeKeranjang = (item) => {
   const found = keranjang.value.find(i => i.id_produk === item.id_produk)
@@ -212,8 +263,8 @@ const totalItem = computed(() =>
 )
 
 const kembalian = computed(() => {
-  if (bayarJumlah.value >= totalHarga.value) {
-    return bayarJumlah.value - totalHarga.value
+  if (bayarJumlahRaw.value >= totalHarga.value) {
+    return bayarJumlahRaw.value - totalHarga.value
   }
   return 0
 })
@@ -229,26 +280,33 @@ const formatTanggalIndonesia = (date) => {
   return `${tanggal}-${bulan}-${tahun} ${jam}:${menit}`
 }
 
+const setMetode = () => {
+  if (metodePembayaran.value === 'qris') {
+    bayarJumlahRaw.value = totalHarga.value
+  }
+}
+
 const bayar = () => {
-  if (bayarJumlah.value < totalHarga.value) {
+  setMetode()
+  if (metodePembayaran.value === 'cash' && bayarJumlahRaw.value < totalHarga.value) {
     alert('Jumlah bayar kurang dari total harga!')
     return
   }
 
-  const metode = metodePembayaran.value === 'cash' ? 'cash' : 'qris'
   const tanggalPemesanan = formatTanggalIndonesia(new Date())
 
   router.push({
     name: 'dashboard.pembelian.form',
     query: {
-      metode: metode,
+      metode: metodePembayaran.value,
       total_item: totalItem.value,
       total_harga: totalHarga.value,
-      bayar: bayarJumlah.value,
+      bayar: bayarJumlahRaw.value,
       kembalian: kembalian.value,
       tanggal_pemesanan: tanggalPemesanan,
       detail_produk: JSON.stringify(keranjang.value)
     }
   })
 }
+
 </script>

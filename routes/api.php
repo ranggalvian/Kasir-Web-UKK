@@ -9,6 +9,7 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\DetailPemesananController;
 use App\Http\Controllers\RiwayatPemesananController;
+use App\Http\Controllers\StatistikController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -62,10 +63,12 @@ Route::middleware(['auth', 'verified', 'json'])->group(function () {
             Route::put('produk/switch/{id_produk}', [ProdukController::class, 'Ketersediaan']);
             
             // Route lainnya    
+            
+            Route::get('produk', [ProdukController::class, 'get'])->withoutMiddleware('can:daftar-produk');;
             Route::post('produk', [ProdukController::class, 'index'])->withoutMiddleware('can:daftar-produk');;
             Route::post('produk/store', [ProdukController::class, 'store']);
             Route::apiResource('produk', ProdukController::class)->except(['index', 'store']);
-       
+            
 
         });
 
@@ -83,19 +86,19 @@ Route::middleware(['auth', 'verified', 'json'])->group(function () {
         
         });
 
-
-        Route::middleware('can:Detail-Pembelian')->group(function () {
-            Route::get('pembelian', [PembelianController::class, 'index']);
-            Route::post('pembelian', [PembelianController::class, 'store']);
-            Route::delete('pembelian/{id}', [PembelianController::class, 'destroy']);
-            Route::get('pembelian/produk', [PembelianController::class, 'dataProduk']);
-            
-        });
-
         Route::middleware('can:pembelian-produk')->group(function () {
             Route::post('riwayat-pemesanan', [RiwayatPemesananController::class, 'store']);
             Route::get('riwayat-pemesanan', [RiwayatPemesananController::class, 'index']);
         });
-
     });
+    Route::prefix('statistik')->group(function () {
+    Route::get('/harian', [StatistikController::class, 'harian']);
+    Route::get('/grafik', [StatistikController::class, 'grafik']);
+    Route::get('/metode', [StatistikController::class, 'metodePembayaran']);
+    });
+
+    // Route::middleware('auth:sanctum')->group(function () {
+    //     Route::post('/absensi', [AbsensiController::class, 'store']);
+    // });
+    
 });

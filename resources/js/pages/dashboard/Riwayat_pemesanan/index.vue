@@ -1,9 +1,9 @@
 <template>
   <div class="container py-5">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
-      <h1 class="h3 fw-bold mb-0">Riwayat Pemesanan</h1>
+      <!-- <h1 class="h3 fw-bold mb-0">Riwayat Pemesanan</h1> -->
 
-      <div class="input-group w-auto">
+     
         <input 
           type="date" 
           v-model="filterTanggal" 
@@ -16,11 +16,11 @@
         >
           Filter
         </button>
-      </div>
+    
     </div>
 
     <!-- Tombol Export PDF -->
-    <div class="d-flex justify-content-end gap-2 mb-3">
+    <div class="d-flex justify-content-end gap-2 mb-4">
       <button class="btn btn-danger" @click="exportToPDF">Export PDF</button>
     </div>
 
@@ -173,7 +173,7 @@ const exportToPDF = () => {
       const subtotal = formatRupiah((detail.produk?.harga || 0) * qty)
 
       body.push([
-        '', '', '', { content: `- ${namaProduk} (x${qty})`, colSpan: 3 }, subtotal, ''
+        '', '', '','', { content: `- ${namaProduk} (x${qty})`}, subtotal, ''
       ])
     })
   })

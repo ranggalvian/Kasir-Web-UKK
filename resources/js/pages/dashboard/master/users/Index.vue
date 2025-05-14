@@ -24,6 +24,17 @@ const columns = [
     column.accessor("email", {
         header: "Email",
     }),
+    column.accessor("photo", {
+        header: "Photo",
+        cell: (cell) =>
+            h("img"
+                ,{
+                    src:`/storage/${cell.getValue()}`,
+                    height: "100",
+                    alt: "User Photo"
+                }
+            )
+    }),
     column.accessor("phone", {
         header: "No. Telp",
     }),

@@ -34,7 +34,7 @@ const formSchema = Yup.object().shape({
     phone: Yup.string().required("Nomor Telepon harus diisi"),
     role_id: Yup.string().required("Pilih role"),
 });
-
+//bagian foto
 function getEdit() {
     block(document.getElementById("form-user"));
     ApiService.get("master/users", props.selected)

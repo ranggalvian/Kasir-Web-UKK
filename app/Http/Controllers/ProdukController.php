@@ -24,9 +24,9 @@ class ProdukController extends Controller
     {
         $per = $request->per ?? 10;
         $page = $request->page ? $request->page - 1 : 0;
-
+    
         DB::statement('set @no=0+' . $page * $per);
-
+    
         $data = Produk::join('kategori', 'produk.id_kategori', '=', 'kategori.id_kategori')
             ->when($request->search, function (Builder $query, string $search) {
                 $query->where('produk.nama_produk', 'like', "%$search%")
@@ -35,7 +35,8 @@ class ProdukController extends Controller
             ->select('produk.*', 'kategori.nama_kategori AS nama_kategori')
             ->latest()
             ->paginate($per, ['*', DB::raw('@no := @no + 1 AS no')]);
-
+    
+    
         return response()->json($data);
     }
     //tombol button on/off

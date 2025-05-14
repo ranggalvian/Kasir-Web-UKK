@@ -60,7 +60,7 @@ const columns = [
               }
             },
           },
-          h("h", item.ketersediaan) //terakhir ega
+          h("h", item.ketersediaan) 
         ),
       ]);
   },
@@ -77,6 +77,7 @@ const columns = [
                         class: "btn btn-sm btn-icon btn-info",
                         onClick: () => {
                             selected.value = cell.getValue();
+                            console.log(selected.value)
                             openForm.value = true;
                         },
                     },

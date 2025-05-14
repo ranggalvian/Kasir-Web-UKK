@@ -3,21 +3,42 @@ import { ref, watch, defineProps, defineEmits, onMounted } from "vue";
 import axios from "@/libs/axios";
 import { toast } from "vue3-toastify";
 import type { Kategori } from "@/types";
+import { isRowSelected } from "@tanstack/vue-table";
 
 const props = defineProps<{ selected: number | null }>();
 const emit = defineEmits(["close", "refresh"]);
 
-// form produk
-
 const produk = ref({
     nama_produk: "",
     id_kategori: "",
-    harga: "",
+    harga: 0, // harga asli
 });
-const kategori = ref<Kategori>({} as Kategori);
+const kategori = ref<Kategori[]>([]);
 const loading = ref<boolean>(false);
+const formattedHarga = ref("");
 
-// Ambil daftar kategori dari API
+// Format tampilan harga saat user mengetik
+function onHargaInput(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const raw = input.value.replace(/[^\d]/g, ""); // hanya angka
+    produk.value.harga = parseInt(raw || "0");
+    formattedHarga.value = formatRupiah(raw);
+}
+
+// Format angka 
+function formatRupiah(angka: string | number): string {
+    const numberString = angka.toString().replace(/[^,\d]/g, "");
+    const split = numberString.split(",");
+    const sisa = split[0].length % 3;
+    let rupiah = split[0].substring(0, sisa);
+    const ribuan = split[0].substring(sisa).match(/\d{3}/g);
+    if (ribuan) {
+        rupiah += (sisa ? "." : "") + ribuan.join(".");
+    }
+    return rupiah ? "Rp " + rupiah : "";
+}
+
+// Ambil kategori dari API
 const fetchKategori = async () => {
     try {
         const response = await axios.get("/master/kategori");
@@ -27,19 +48,26 @@ const fetchKategori = async () => {
     }
 };
 
-// Ambil detail produk jika sedang edit
 const fetchProduk = async (id: number) => {
-    try {
-        const response = await axios.get(`/master/produk/${id}`);
-        produk.value = response.data;
-    } catch (error) {
-        toast.error("Gagal mengambil data produk");
-    }
+  try {
+    const response = await axios.get(`/master/produk/${id}`);
+    const data = response.data;
+
+    // Map hanya field yang dibutuhkan
+    produk.value = {
+      nama_produk: data.produk.nama_produk || "",
+      id_kategori: data.produk.id_kategori || "",
+      harga: data.produk.harga || null,
+    };
+    formattedHarga.value = formatRupiah(data.produk.harga || 0);
+  } catch (error) {
+    toast.error("Gagal mengambil data produk");
+  }
 };
 
-// Simpan Produk (Tambah / Edit)
+
+// Simpan produk
 const saveProduk = async () => {
-    console.log(produk.value);  
     loading.value = true;
     try {
         if (props.selected) {
@@ -58,18 +86,22 @@ const saveProduk = async () => {
     }
 };
 
-// Reset form jika ditutup
+// Reset form saat modal dibuka/tutup
 watch(() => props.selected, (newVal) => {
+    console.log("selected berubah:", newVal);
     if (newVal) {
         fetchProduk(newVal);
     } else {
-        produk.value = { nama_produk: "", id_kategori: "", harga: "" };
+        produk.value = { nama_produk: "", id_kategori: "", harga: 0 };
+        formattedHarga.value = "";
     }
 });
 
-// Ambil kategori saat komponen dimuat
 onMounted(() => {
     fetchKategori();
+    if(props.selected){
+        fetchProduk(props.selected)
+    }
 });
 </script>
 
@@ -101,19 +133,24 @@ onMounted(() => {
                             <label class="form-label">Kategori</label>
                             <select class="form-control" v-model="produk.id_kategori" required>
                                 <option value="" disabled>Pilih Kategori</option>
-                                <option v-for="katego in kategori" :key="katego.id_kategori" :value="katego.id_kategori">
-                                    {{ katego.nama_kategori}}
+                                <option
+                                    v-for="katego in kategori"
+                                    :key="katego.id_kategori"
+                                    :value="katego.id_kategori"
+                                >
+                                    {{ katego.nama_kategori }}
                                 </option>
                             </select>
                         </div>
 
-                        <!-- Input Harga -->
+                        <!-- Input Harga (format Rp) -->
                         <div class="mb-3">
                             <label class="form-label">Harga</label>
                             <input
-                                type="number"
+                                type="text"
                                 class="form-control"
-                                v-model="produk.harga"
+                                :value="formattedHarga"
+                                @input="onHargaInput"
                                 required
                             />
                         </div>

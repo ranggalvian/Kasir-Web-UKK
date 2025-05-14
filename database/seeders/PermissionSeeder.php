@@ -21,7 +21,7 @@ class PermissionSeeder extends Seeder
 
         $menuMaster = ['master', 'master-user', 'master-role',];
         $menuProduk = ['info-produk', 'daftar-produk', 'produk-kategori' ];
-        $menuPembelian = ['pembelian-produk', 'Detail=Pemesanan'];
+        $menuPembelian = ['pembelian-produk', 'Detail-Pembelian'];
         $menuRiwayat = ['riwayat-pemesanan'];
         $menuWebsite = ['website', 'setting'];
 
