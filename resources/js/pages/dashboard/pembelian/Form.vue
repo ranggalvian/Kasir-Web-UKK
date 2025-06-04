@@ -41,13 +41,30 @@
     <div class="modal-backdrop fade show"></div>
   </div>
 
+  <!-- Modal Payment Success untuk QRIS -->
+  <!-- <div v-if="showSuccessModal">
+    <div class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true" role="dialog">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-4">
+          <h5 class="mb-3">Pembayaran QRIS Berhasil</h5>
+          <p class="text-muted">Transaksi telah berhasil dan data masuk ke riwayat pemesanan.</p>
+          <div class="d-grid gap-2 mt-3">
+            <button class="btn btn-primary btn-sm" @click="printStruk">Cetak Struk</button>
+            <button class="btn btn-success btn-sm" @click="kembali">Kembali</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+  </div> -->
+
   <!-- Struk Pembayaran -->
   <div v-if="showPrint" class="container monospace py-4 d-flex justify-content-center">
     <div class="p-3" style="width: 300px;">
       <div class="d-grid gap-2 mt-3">
         <img src="/media/iconWarung.png" class="mx-auto d-block" style="width: 100px;">
       </div>
-      <h5 class="text-center mb-3 fw-bold">Berkah Warung Makan </h5>
+      <h5 class="text-center mb-3 fw-bold">Berkah Warung Emak </h5>
       <div class="text-center" style="font-family: monospace;">
         <p>Jl.Salman Aselole</p>
         <p> No. Telp 0851-9834-2110</p>
@@ -117,6 +134,7 @@ const pembelian = ref({
 
 const showModal = ref(false)
 const showPrint = ref(false)
+const showSuccessModal = ref(false)
 
 const pembayaranInfo = computed(() => [
   { label: 'Metode', value: pembelian.value.metode },
@@ -130,7 +148,7 @@ const pembayaranInfo = computed(() => [
 onMounted(async () => {
   if (pembelian.value.metode.toLowerCase() === 'qris') {
     const result = await Swal.fire({
-      title: 'Menunggu Pembeli Melakukan Scanning Untuk Pembayaran',
+      title: 'Pembayaran Berhasil Silahkan Cetak Struk',
       icon: 'info',
       showCancelButton: true,
       confirmButtonText: 'Lanjutkan',
@@ -139,7 +157,7 @@ onMounted(async () => {
     })
 
     if (result.isConfirmed) {
-      showModal.value = true
+      konfirmasi_pembayaran();
     } else {
       router.back()
     }
@@ -167,16 +185,12 @@ const konfirmasi_pembayaran = async () => {
       detail_produk: pembelian.value.detail_produk
     })
 
-    await Swal.fire({
-      icon: 'success',
-      title: 'Pembayaran Berhasil',
-      text: 'Data berhasil disimpan ke Riwayat!',
-      confirmButtonText: 'OK',
-      confirmButtonColor: '#0d6efd'
-    })
-
     showModal.value = false
-    showPrint.value = true
+    if (pembelian.value.metode.toLowerCase() === 'qris') {
+      showPrint.value = true
+    } else {
+      showPrint.value = true
+    }
   } catch (error) {
     console.error('Gagal menyimpan pembayaran:', error)
     Swal.fire({
@@ -190,13 +204,20 @@ const konfirmasi_pembayaran = async () => {
 }
 
 const kembali = () => {
+  showSuccessModal.value = false
   showPrint.value = false
   router.back()
 }
 
 const printStruk = () => {
-  window.print()
+  showSuccessModal.value = false
+  showPrint.value = true
+
+   setTimeout(() => {
+    window.print()
+  }, 300)
 }
+
 
 const formatRupiah = (value) => {
   if (!value) return 'Rp0'

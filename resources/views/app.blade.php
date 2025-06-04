@@ -24,6 +24,14 @@
   </style>
 
   @vite('resources/js/main.ts')
+
+  <script 
+  src="https://app.sandbox.midtrans.com/snap/snap.js" 
+  data-client-key="SB-Mid-client-3WRxFkMIr50GJOOO
+
+">
+  </script>
+
 </head>
 
 <body class="page-loading">

@@ -10,6 +10,7 @@ use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\DetailPemesananController;
 use App\Http\Controllers\RiwayatPemesananController;
 use App\Http\Controllers\StatistikController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -90,15 +91,12 @@ Route::middleware(['auth', 'verified', 'json'])->group(function () {
             Route::post('riwayat-pemesanan', [RiwayatPemesananController::class, 'store']);
             Route::get('riwayat-pemesanan', [RiwayatPemesananController::class, 'index']);
         });
-    });
-    Route::prefix('statistik')->group(function () {
-    Route::get('/harian', [StatistikController::class, 'harian']);
-    Route::get('/grafik', [StatistikController::class, 'grafik']);
-    Route::get('/metode', [StatistikController::class, 'metodePembayaran']);
-    });
+        });
+        Route::prefix('statistik')->group(function () {
+        Route::get('/harian', [StatistikController::class, 'harian']);
+        Route::get('/grafik', [StatistikController::class, 'grafik']);
+        Route::get('/metode', [StatistikController::class, 'metodePembayaran']);
+        });
 
-    // Route::middleware('auth:sanctum')->group(function () {
-    //     Route::post('/absensi', [AbsensiController::class, 'store']);
-    // });
-    
+        Route::post('/transaksi/snap', [PaymentController::class, 'createCharge']);
 });

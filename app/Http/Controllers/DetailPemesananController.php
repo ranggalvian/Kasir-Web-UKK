@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Detail_pemesanan;
+use App\Models\Detail_Pemesanan;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\DetailPemesananRequest;
 

@@ -2,7 +2,7 @@
   
     <!-- Tombol Export -->
     <div class="text-end mb-3 container">
-      <button class="btn btn-danger" @click="exportToPDF">📤 Export PDF</button>
+      <button class="btn btn-danger" @click="exportToPDF">Export PDF</button>
     </div>
 
     <!-- Konten yang akan diexport ke PDF -->
@@ -81,30 +81,32 @@
       </div>
 
       <!-- Grafik Omzet (Bar Chart) -->
-      <div class="card mb-4 shadow">
-        <div class="card-body">
-          <h5 class="card-title text-center mb-3">📊 Pendapatan Per Hari Dalam Sebulan</h5>
-          <div id="omzet-chart" class="transition-chart">
-            <apexchart
-              type="bar"
-              height="350"
-              :options="barChartOptions"
-              :series="barSeries"
-            />
+      <div class="row gap-12">
+        <div class="card mb-4 shadow col-8">
+          <div class="card-body">
+            <h5 class="card-title text-center mb-3">📊 Pendapatan Per Hari Dalam Sebulan</h5>
+            <div id="omzet-chart" class="transition-chart">
+              <apexchart
+                type="bar"
+                height="350"
+                :options="barChartOptions"
+                :series="barSeries"
+              />
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- Grafik Metode Pembayaran -->
-      <div class="card shadow">
-        <div class="card-body">
-          <h5 class="card-title text-center mb-3">💳 Metode Pembayaran</h5>
-          <apexchart
-            type="donut"
-            height="300"
-            :options="metodeChartOptions"
-            :series="metodeSeries"
-          />
+  
+        <!-- Grafik Metode Pembayaran -->
+        <div class="card shadow col-3">
+          <div class="card-body">
+            <h5 class="card-title text-center mb-3">💳 Metode Pembayaran</h5>
+            <apexchart
+              type="donut"
+              height="300"
+              :options="metodeChartOptions"
+              :series="metodeSeries"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -126,7 +128,6 @@ export default {
       totalOmzet: 0,
       totalOmzetBulanan: 0,
       jumlahTransaksi: 0,
-      //currentTime: '',
 
       selectedBulan: new Date().getMonth() + 1,
       selectedTahun: new Date().getFullYear(),
@@ -159,9 +160,7 @@ export default {
             dynamicAnimation: { enabled: true, speed: 350 },
           },
         },
-          legend: {
-            show: false,
-          },
+        legend: { show: false },
         dataLabels: {
           enabled: true,
           style: { fontSize: '10px', fontWeight: 'bold' },
@@ -194,16 +193,25 @@ export default {
           },
         },
         tooltip: {
-          y: {
-            formatter: (val) => `Rp${val.toLocaleString('id-ID')}`,
+          custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+            const rawDate = w.globals.labels[dataPointIndex]
+            const value = series[seriesIndex][dataPointIndex]
+            const dateObj = new Date(rawDate)
+            const hari = dateObj.toLocaleDateString('id-ID', { weekday: 'long' })
+            const tanggalFormatted = dateObj.toLocaleDateString('id-ID')
+            return `
+              <div style="padding: 8px;">
+                <text>Hari:</text> ${hari}<br/>
+                <text>Tanggal:</text> ${tanggalFormatted}<br/>
+                <text>Omzet:</text> Rp${value.toLocaleString('id-ID')}
+              </div>
+            `
           },
         },
         plotOptions: {
           bar: {
             distributed: true,
             borderRadius: 5,
-            horizontal: false,
-            columnWidth: '70%',
             endingShape: 'rounded',
           },
         },
@@ -217,7 +225,6 @@ export default {
         },
       },
       barSeries: [{ name: 'Omzet', data: [] }],
-
       metodeChartOptions: {
         chart: { id: 'metode-chart' },
         labels: ['Cash', 'Qris'],
@@ -232,8 +239,6 @@ export default {
     this.loadGrafik()
     this.loadMetodePembayaran()
     this.initScrollObserver()
-    // this.updateTime()
-    // setInterval(this.updateTime, 1000)
   },
   methods: {
     formatRupiah(angka) {
@@ -241,24 +246,16 @@ export default {
       return `Rp${angka.toLocaleString('id-ID')}`
     },
 
-
-    // updateTime() {
-    //   const now = new Date()
-    //   this.currentTime = now.toLocaleTimeString('id-ID', {
-    //     hour: '2-digit',
-    //     minute: '2-digit',
-    //     second: '2-digit',
-    //   })
-    // },
     async loadHarini() {
       try {
         const res = await axios.get('/statistik/harian')
-        this.totalOmzet = Number (res.data.total_omzet)
+        this.totalOmzet = Number(res.data.total_omzet)
         this.jumlahTransaksi = res.data.jumlah_transaksi
       } catch (err) {
         console.error('Gagal load data harian:', err)
       }
     },
+
     async loadGrafik() {
       try {
         const res = await axios.get('/statistik/grafik', {
@@ -268,6 +265,7 @@ export default {
           },
         })
         const data = res.data
+
         const tanggal = data.map((item) => item.tanggal)
         const omzet = data.map((item) => item.total)
 
@@ -276,15 +274,34 @@ export default {
           xaxis: {
             ...this.barChartOptions.xaxis,
             categories: tanggal,
+           
+           
+            labels: {
+              ...this.barChartOptions.xaxis.labels,
+                rotate: '-90',
+                style: {
+                  fontSize: '10px',
+                },
+
+               formatter: (val) => {
+                const date = new Date(val)
+                if (isNaN(date)) return val
+                const dd = String(date.getDate()).padStart(2, '0')
+                const mm = String(date.getMonth() + 1).padStart(2, '0')
+                const yyyy = date.getFullYear()
+                return `${dd}/${mm}/${yyyy}`
+              },
+            },
           },
         }
+
         this.barSeries[0].data = omzet
         this.totalOmzetBulanan = omzet.reduce((acc, curr) => acc + Number(curr), 0)
-
       } catch (err) {
         console.error('Gagal load grafik:', err)
       }
     },
+
     async loadMetodePembayaran() {
       try {
         const res = await axios.get('/statistik/metode')
@@ -295,6 +312,7 @@ export default {
         console.error('Gagal load metode pembayaran:', err)
       }
     },
+
     initScrollObserver() {
       const observer = new IntersectionObserver(
         (entries) => {
@@ -314,6 +332,7 @@ export default {
       const chart = document.querySelector('#omzet-chart')
       if (chart) observer.observe(chart)
     },
+
     async exportToPDF() {
       const laporanEl = document.querySelector('#laporan-pdf')
       if (!laporanEl) return alert('Elemen laporan tidak ditemukan.')
@@ -337,6 +356,8 @@ export default {
   },
 }
 </script>
+
+
 
 
 <style scoped>

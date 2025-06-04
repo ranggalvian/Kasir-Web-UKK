@@ -22,26 +22,27 @@
         </div>
 
         <!-- Produk -->
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+        <div class="row row-cols-2 row-cols-md-2 row-cols-lg-3 g-5">
           <div
             v-for="item in produkFiltered"
             :key="item.id_produk"
-            class="col"
+            class="col gap"
             @click="handleKlikProduk(item)"  
           >
             <div
-              class="card text-center h-100 p-3 d-flex flex-column justify-content-between shadow-sm"
+              class="card text-center h-100 p-3 d-flex flex-column justify-content-between shadow-sm hover-card"
               :class="{
                 'opacity-50 bg-light text-muted': item.ketersediaan !== 'Tersedia', 
                 'cursor-pointer': true
               }"
             >
+              <!-- harga -->
               <div>
                 <h5 class="fw-bold">{{ item.nama_produk }}</h5>
               </div>
               <div>
-                <p class="fw-semibold" :class="item.ketersediaan === 'Tersedia' ? 'text-success' : 'text-muted'">
-                  Rp{{ item.harga }}
+                <p class="fw-semibold" :class="item.ketersediaan === 'Tersedia' ? 'text-success' : 'text-muted'"> 
+                  {{formatRupiah(item.harga) }}  
                 </p>
               </div>
             </div>
@@ -68,7 +69,7 @@
               <div class="d-flex align-items-center gap-2">
                 <div>
                   <div class="fw-medium">{{ item.nama_produk }}</div>
-                  <div class="text-muted small">Rp{{ item.harga }}</div>
+                  <div class="text-muted small">{{formatRupiah(item.harga) }}</div>
                 </div>
               </div>
               <div class="d-flex align-items-center gap-1">
@@ -88,10 +89,10 @@
             </div>
             <div class="d-flex justify-content-between font-weight-light small mb-5">
               <span>Total Harga</span>
-              <span>Rp{{ totalHarga }}</span>
+              <span>{{formatRupiah(totalHarga)}}</span>
             </div>
 
-            <!-- Input Jumlah Bayar -->
+           
             <!-- Input Jumlah Bayar -->
             <div v-if="metodePembayaran === 'cash'" class="mb-3">
               <label for="bayarJumlah" class="form-label fw-medium">Jumlah Bayar</label>
@@ -155,12 +156,15 @@
             <button
               class="btn btn-primary w-100 fw-semibold"
               @click="bayar"
-              :disabled="keranjang.length === 0 || (metodePembayaran === 'cash' && bayarJumlah < totalHarga)"
+              :disabled="
+                keranjang.length === 0 ||
+                (metodePembayaran === 'cash' &&
+                  (bayarJumlahRaw <= 0 || bayarJumlahRaw < totalHarga))
+              "
             >
               Pesan
-            </button>
+            </button>   
           </div>
-
         </div>
       </div>
     </div>
@@ -180,24 +184,36 @@ const kategori = ref(['Semua','Minuman','Makanan'])
 const kategoriAktif = ref('Semua')
 const keranjang = ref([])
 const metodePembayaran = ref('cash')
-
-// raw value (number) untuk input bayar
 const bayarJumlahRaw = ref(0)
 
-// format Rupiah otomatis saat diketik
 const bayarJumlah = computed({
   get() {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
-    }).format(bayarJumlahRaw.value)
+    return formatRupiah(bayarJumlahRaw.value, 'Rp. ')
   },
   set(val) {
     const numeric = parseInt(val.replace(/[^0-9]/g, '')) || 0
     bayarJumlahRaw.value = numeric
   }
 })
+
+function formatRupiah(angka, prefix) {
+  if (typeof angka !== 'string'){
+    angka = angka.toString()
+  } 
+  let number_string = angka.replace(/[^,\d]/g, '').toString()
+  let split = number_string.split(',')
+  let sisa = split[0].length % 3
+  let rupiah = split[0].substr(0, sisa)
+  let ribuan = split[0].substr(sisa).match(/\d{3}/gi)
+
+  if (ribuan) {
+    let separator = sisa ? '.' : ''
+    rupiah += separator + ribuan.join('.')
+  }
+
+  rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah
+  return prefix == undefined ? rupiah : (rupiah ? prefix + rupiah : '')
+}
 
 onMounted(async () => {
   try {
@@ -206,8 +222,7 @@ onMounted(async () => {
 
     const resKategori = await axios.post('/master/kategori')
     kategori.value = ['Semua', ...resKategori.data.data.map(k => k.nama_kategori)]
-  } 
-  catch (error) {
+  } catch (error) {
     console.error('Gagal mengambil data produk/kategori:', error)
   }
 })
@@ -276,37 +291,98 @@ const formatTanggalIndonesia = (date) => {
   const tahun = d.getFullYear()
   const jam = String(d.getHours()).padStart(2, '0')
   const menit = String(d.getMinutes()).padStart(2, '0')
-
-  return `${tanggal}-${bulan}-${tahun} ${jam}:${menit}`
+  return `${tanggal}-${bulan}-${tahun} ${jam}:${menit}`;
 }
 
-const setMetode = () => {
-  if (metodePembayaran.value === 'qris') {
-    bayarJumlahRaw.value = totalHarga.value
-  }
-}
+const bayar = async () => {
+  const tanggalPemesanan = formatTanggalIndonesia(new Date());
 
-const bayar = () => {
-  setMetode()
-  if (metodePembayaran.value === 'cash' && bayarJumlahRaw.value < totalHarga.value) {
-    alert('Jumlah bayar kurang dari total harga!')
-    return
-  }
-
-  const tanggalPemesanan = formatTanggalIndonesia(new Date())
-
-  router.push({
-    name: 'dashboard.pembelian.form',
-    query: {
-      metode: metodePembayaran.value,
-      total_item: totalItem.value,
-      total_harga: totalHarga.value,
-      bayar: bayarJumlahRaw.value,
-      kembalian: kembalian.value,
-      tanggal_pemesanan: tanggalPemesanan,
-      detail_produk: JSON.stringify(keranjang.value)
+  if (metodePembayaran.value === 'cash') {
+    if (bayarJumlahRaw.value < totalHarga.value) {
+      alert('Jumlah bayar kurang dari total harga!');
+      return;
     }
-  })
+
+    router.push({
+      name: 'dashboard.pembelian.form',
+      query: {
+        metode: metodePembayaran.value,
+        total_item: totalItem.value,
+        total_harga: totalHarga.value,
+        bayar: bayarJumlahRaw.value,
+        kembalian: kembalian.value,
+        tanggal_pemesanan: tanggalPemesanan,
+        detail_produk: JSON.stringify(keranjang.value)
+      }
+    });
+  }
+
+  if (metodePembayaran.value === 'qris') {
+    try {
+      const detailProduk = keranjang.value.map(item => ({
+        id: item.id_produk,
+        price: item.harga,
+        quantity: item.qty,
+        name: item.nama_produk
+      }));
+
+      const res = await axios.post('/transaksi/snap', {
+        total_harga: totalHarga.value,
+        detail_produk: detailProduk
+      });
+
+      const snapToken = res.data.snap_token;
+      const orderId = res.data.order_id;
+
+      if (window.snap && typeof window.snap.pay === 'function') {
+        window.snap.pay(snapToken, {
+          onSuccess(result) {
+            toast.success("Pembayaran Berhasil!");
+            console.log("🎉 Pembayaran sukses:", result);
+
+            // Navigasi ke halaman form dengan parameter yang dibutuhkan
+            router.push({
+              name: 'dashboard.pembelian.form',
+              query: {
+                metode: metodePembayaran.value,
+                total_item: totalItem.value,
+                total_harga: totalHarga.value,
+                bayar: totalHarga.value,
+                kembalian: 0,
+                tanggal_pemesanan: tanggalPemesanan,
+                detail_produk: JSON.stringify(keranjang.value),
+                order_id: orderId,
+                midtrans_status: 'success'
+              }
+            });
+          },
+          onPending(result) {
+            toast.info("Menunggu Pembayaran...");
+          },
+          onError(result) {
+            toast.error("Pembayaran Gagal!");
+          },
+          onClose() {
+            toast.info("Popup ditutup oleh user.");
+          }
+        });
+      } else {
+        toast.error("Gagal memuat Midtrans Snap");
+      }
+    } catch (err) {
+      console.error("Gagal request ke endpoint Snap Midtrans:", err);
+      toast.error("Gagal koneksi ke Midtrans");
+    }
+  }
+}
+</script>
+
+<style>
+.hover-card:hover{
+  background-color: #1c86ff;
 }
 
-</script>
+.hover-card:hover p {
+  color: white !important;
+}
+</style>
