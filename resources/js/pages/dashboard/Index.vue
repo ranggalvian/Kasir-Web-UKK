@@ -88,10 +88,10 @@
             <div id="omzet-chart" class="transition-chart">
               <apexchart
                 type="bar"
-                height="350"
+                height="300"
                 :options="barChartOptions"
                 :series="barSeries"
-              />
+              />  
             </div>
           </div>
         </div>
@@ -102,7 +102,7 @@
             <h5 class="card-title text-center mb-3">💳 Metode Pembayaran</h5>
             <apexchart
               type="donut"
-              height="300"
+              height="250"
               :options="metodeChartOptions"
               :series="metodeSeries"
             />

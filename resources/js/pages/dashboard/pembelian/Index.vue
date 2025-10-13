@@ -36,10 +36,26 @@
                 'cursor-pointer': true
               }"
             >
-              <!-- harga -->
+              <!-- Tambahkan foto produk -->
+              <div class="mb-3">
+                <img
+                  v-if="item.photo" 
+                  :src="`/storage/${item.photo}`"
+                  :alt="item.nama_produk"
+                  class="img-fluid rounded"
+                  style="max-height: 120px; object-fit: cover; width: 100%;"
+                />
+                <div v-else class="text-muted" style="height: 120px; line-height: 120px;">
+                  Tidak ada foto
+                </div>
+              </div>
+
+              <!-- nama produk -->
               <div>
                 <h5 class="fw-bold">{{ item.nama_produk }}</h5>
               </div>
+
+              <!-- harga -->
               <div>
                 <p class="fw-semibold" :class="item.ketersediaan === 'Tersedia' ? 'text-success' : 'text-muted'"> 
                   {{formatRupiah(item.harga) }}  

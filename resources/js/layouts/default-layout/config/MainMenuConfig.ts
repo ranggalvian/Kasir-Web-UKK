@@ -60,7 +60,15 @@ const MainMenuConfig: Array<MenuItem> = [
                         heading: "Kategori Menu",
                         name: "produk-kategori",
                         route: "/dashboard/info_produk/kategori",
-                    },  
+                    },
+ 
+                    {
+                        heading: "Input cup and sugar",
+                        name: "input-cup-and-sugar",
+                        route: "/dashboard/kategori_cup_sugar/cup_sugar",
+                    },
+                    
+                    
                 ],
             },
 

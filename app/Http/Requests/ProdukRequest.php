@@ -24,7 +24,8 @@ class ProdukRequest extends FormRequest
         return [
             'harga' => 'required',
             'id_kategori' => 'required',
-            'nama_produk' => 'required'
+            'nama_produk' => 'required',
+            'photo' => 'nullable|image'
         ];
     }
 }

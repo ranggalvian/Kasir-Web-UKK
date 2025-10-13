@@ -11,11 +11,22 @@ class Produk extends Model
 
     protected $table = 'produk'; // Sesuaikan dengan nama tabel
     protected $primaryKey = 'id_produk'; // Sesuaikan dengan primary key
-    protected $fillable = ['id_kategori', 'nama_produk', 'harga','stock','ketersediaan'];
+    protected $fillable = ['id_kategori', 'nama_produk', 'harga','ketersediaan','photo'];
 
     // Relasi ke Kategori
     public function kategori()
     {
         return $this->belongsTo(Kategori::class, 'id_kategori');
     }
+
+    protected $appends = ['photo_url'];
+
+    public function getPhotoUrlAttribute()
+    {
+        return $this->photo 
+            ? asset('storage/' . $this->photo) 
+            : null;
+    }
+
+    
 }

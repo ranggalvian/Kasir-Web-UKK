@@ -22,9 +22,24 @@ const columns = [
         header: "No",
         cell: (cell) => cell.row.index + 1,
     }),
+    column.accessor("photo", {
+        header: "Menu Foto",
+         cell: (cell) =>
+            h("img",{
+                    src:`/storage/${cell.getValue()}`,
+                    height: "100",
+                    alt: "Menu Photo"
+                }) 
+    }),
     column.accessor("nama_produk", {
         header: "Menu",
     }),
+    // // column.accessor("cup_size_id", {
+    // //     header: "Size Cup",
+    // // }),
+    // // column.accessor("Sugar_level_id", {
+    // //     header: "Sugar Level",
+    // }),
     column.accessor("nama_kategori", {
         header: "Kategori",
     }),

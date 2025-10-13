@@ -13,7 +13,7 @@ class AuthController extends Controller
             'user' => auth()->user()
         ]);
     }
-
+    
     public function login(Request $request)
     {
         $validator = Validator::make($request->post(), [

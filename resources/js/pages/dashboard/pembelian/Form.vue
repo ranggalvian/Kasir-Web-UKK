@@ -225,7 +225,7 @@ const formatRupiah = (value) => {
 }
 </script>
 
-<style scoped>
+<style scoped> 
 @page {
   padding: 0;
   margin: 0;
