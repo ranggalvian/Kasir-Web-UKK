@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getAssetPath } from "@/core/helpers/assets";
+import { getAssetPath, getStoragePath } from "@/core/helpers/assets";
 import { computed, ref } from "vue";
 import KTUserMenu from "@/layouts/default-layout/components/menus/UserAccountMenu.vue";
 import KTThemeModeSwitcher from "@/layouts/default-layout/components/theme-mode/ThemeModeSwitcher.vue";
@@ -29,9 +29,9 @@ for (let i = new Date().getFullYear(); i >= new Date().getFullYear() - 2; i--) {
     <!--begin::Navbar-->
     <div class="app-navbar flex-shrink-0">
         <!--begin::Theme mode-->
-        <div class="app-navbar-item me-10">
+        <!-- <div class="app-navbar-item me-10">
             <select2 class="form-select-solid w-125px" :options="tahuns" v-model="tahun.tahun"></select2>
-        </div>
+        </div> -->
         <!--end::Theme mode-->
 
         <!--begin::Theme mode-->
@@ -54,7 +54,7 @@ for (let i = new Date().getFullYear(); i >= new Date().getFullYear() - 2; i--) {
             <!--begin::Menu wrapper-->
             <div class="cursor-pointer symbol symbol-35px" data-kt-menu-trigger="{default: 'click', lg: 'hover'}"
                 data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
-                <img :src="getAssetPath(user.photo ?? 'media/avatars/300-3.jpg')" class="rounded-3" alt="user" />
+                <img :src="getStoragePath(user.photo ?? 'media/avatars/300-3.jpg')" class="rounded-3" alt="user" />
             </div>
             <KTUserMenu />
             <!--end::Menu wrapper-->

@@ -1,28 +1,44 @@
 import { illustrationsSet } from "@/layouts/default-layout/config/helper";
 import { useThemeStore } from "@/stores/theme";
 
+const BASE_URL = import.meta.env.APP_URL || "http://127.0.0.1:8000";
+
+/**
+ * Get illustration path from assets based on theme mode
+ */
 export const getIllustrationsPath = (illustrationName: string): string => {
-    const extension = illustrationName.substring(
-        illustrationName.lastIndexOf("."),
-        illustrationName.length
-    );
-    const illustration =
-        useThemeStore().mode == "dark"
-            ? `${illustrationName.substring(
-                  0,
-                  illustrationName.lastIndexOf(".")
-              )}-dark`
-            : illustrationName.substring(0, illustrationName.lastIndexOf("."));
-    return (
-        import.meta.env.VITE_BASE_URL +
-        `media/illustrations/${illustrationsSet.value}/${illustration}${extension}`
-    );
+  // Ambil posisi titik terakhir (untuk ekstensi)
+  const lastDotIndex = illustrationName.lastIndexOf(".");
+  const hasExtension = lastDotIndex !== -1;
+
+  const name = hasExtension
+    ? illustrationName.slice(0, lastDotIndex)
+    : illustrationName;
+
+  const ext = hasExtension
+    ? illustrationName.slice(lastDotIndex)
+    : "";
+
+  // Tambahkan suffix -dark jika tema dark
+  const theme = useThemeStore().mode === "dark" ? `${name}-dark` : name;
+
+  return `${BASE_URL}media/illustrations/${illustrationsSet.value}/${theme}${ext}`;
 };
 
+/**
+ * Get asset path from public folder
+ */
 export const getAssetPath = (path: string): string => {
-    return import.meta.env.VITE_BASE_URL + "/" + path;
+    console.log("Base URL:", BASE_URL);
+    console.log(`${BASE_URL}${path.startsWith("/") ? path : "/" + path}`);
+    return `${BASE_URL}${path.startsWith("/") ? path : "/" + path}`;
 };
 
+/**
+ * Get storage asset path
+*/
 export const getStoragePath = (path: string): string => {
-    return import.meta.env.VITE_BASE_URL + "/storage/" + path;
+    console.log("Base URL:", BASE_URL);
+    console.log(`${BASE_URL}/storage/${path}`);
+  return `${BASE_URL}/storage/${path}`;
 };

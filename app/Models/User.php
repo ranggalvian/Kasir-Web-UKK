@@ -12,6 +12,8 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements JWTSubject
 {
+
+
     use Uuid, HasRoles;
 
     /**
@@ -46,7 +48,7 @@ class User extends Authenticatable implements JWTSubject
         'password' => 'hashed',
     ];
 
-    protected $appends = ['permission', 'role'];
+    protected $appends = ['permission', 'role', 'photo_url'];
 
     protected static function booted()
     {
@@ -57,7 +59,13 @@ class User extends Authenticatable implements JWTSubject
             }
         });
     }
-
+    
+    public function getPhotoUrlAttribute()
+    {
+        return $this->photo
+            ? asset('storage/' . $this->photo)
+            : null;
+    }
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
@@ -88,7 +96,8 @@ class User extends Authenticatable implements JWTSubject
         return $this->getAllPermissions()->pluck('name');
     }
 
-    public function riwayat(){
+    public function riwayat()
+    {
         return $this->hasMany(RiwayatPemesanan::class, 'kasir_id');
     }
 }

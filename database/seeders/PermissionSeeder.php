@@ -23,10 +23,11 @@ class PermissionSeeder extends Seeder
         $menuProduk = ['info-produk', 'daftar-produk', 'produk-kategori' ];
         $menuPembelian = ['pembelian-produk', 'Detail-Pembelian'];
         $menuRiwayat = ['riwayat-pemesanan'];
+        $kategoriKebutuhan = ['kebutuhan-kategori','daftar-cup-size', 'daftar-sugar-level'];
         $menuWebsite = ['website', 'setting'];
 
         $permissionsByRole = [
-            'admin' => ['dashboard', ...$menuMaster, ...$menuWebsite , ...$menuProduk, ...$menuPembelian, ...$menuRiwayat],
+            'admin' => ['dashboard', ...$menuMaster, ...$menuWebsite , ...$menuProduk, ...$menuPembelian, ...$menuRiwayat, ...$kategoriKebutuhan],
         ];
 
         $insertPermissions = fn ($role) => collect($permissionsByRole[$role])

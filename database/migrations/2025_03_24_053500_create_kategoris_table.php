@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('kategori', function (Blueprint $table) {
-            $table->id('id_kategori'); // Laravel akan otomatis membuat primary key "id"
+            $table->id('id_kategori'); 
             $table->string('nama_kategori');
             $table->timestamps();
         });

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getAssetPath } from "@/core/helpers/assets";
+import { getAssetPath, getStoragePath } from "@/core/helpers/assets";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from "@/stores/auth";
@@ -91,7 +91,7 @@ const currentLangugeLocale = computed(() => {
                     <img
                         alt="Logo"
                         :src="
-                            getAssetPath(
+                            getStoragePath(
                                 store.user.photo ?? 'media/avatars/300-3.jpg'
                             )
                         "
@@ -126,11 +126,7 @@ const currentLangugeLocale = computed(() => {
         <!--end::Menu separator-->
 
         <!--begin::Menu item-->
-        <div class="menu-item px-5 my-1">
-            <router-link to="/dashboard/profile" class="menu-link px-5">
-                Account Settings
-            </router-link>
-        </div>
+    
         <!--end::Menu item-->
 
         <!--begin::Menu item-->

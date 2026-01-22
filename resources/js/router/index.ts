@@ -33,15 +33,15 @@ const routes: Array<RouteRecordRaw> = [
                     breadcrumbs: ["Dashboard"],
                 },
             },
-            {
-                path: "/dashboard/profile",
-                name: "dashboard.profile",
-                component: () => import("@/pages/dashboard/profile/Index.vue"),
-                meta: {
-                    pageTitle: "Profile",
-                    breadcrumbs: ["Profile"],
-                },
-            },
+            // {
+            //     path: "/dashboard/profile",
+            //     name: "dashboard.profile",
+            //     component: () => import("@/pages/dashboard/profile/Index.vue"),
+            //     meta: {
+            //         pageTitle: "Profile",
+            //         breadcrumbs: ["Profile"],
+            //     },
+            // },
             {
                 path: "/dashboard/setting",
                 name: "dashboard.setting",
@@ -73,8 +73,8 @@ const routes: Array<RouteRecordRaw> = [
                     breadcrumbs: ["Master", "Users"],
                 },
             },
-            
-                        // PRODUK
+
+            // PRODUK
             {
                 path: "/dashboard/info_produk/produk",
                 name: "dashboard.info_produk.produk",
@@ -84,7 +84,7 @@ const routes: Array<RouteRecordRaw> = [
                     breadcrumbs: ["MAKAN", "MINUM"],
                 },
             },
-                        // KATEGORI
+            // KATEGORI
             {
                 path: "/dashboard/info_produk/kategori",
                 name: "dashboard.info_produk.kategori",
@@ -93,19 +93,31 @@ const routes: Array<RouteRecordRaw> = [
                     pageTitle: "Kategori menu",
                     breadcrumbs: ["Info Menu", "Kategori"],
                 },
-            },    
+            },
 
-                    // pembelian
-                    {
-                        path: "/dashboard/pembelian",
-                        name: "dashboard.pembelian",
-                        component: () => import("@/pages/dashboard/pembelian/Index.vue"),
-                        meta: {
-                            pageTitle: "List Menu",
-                            breadcrumbs: ["Pemesanan", "Menu"],
-                        },
-                    },
+            // kategori kebutuhan
+            {
+                path: '/dashboard/kategori_kebutuhan/cup',
+                name: 'daftar-cup-size',
+                component: () => import("@/pages/dashboard/kategori_kebutuhan/Cup/Index.vue"),
+            },
+            {
+                path: '/dashboard/kategori_kebutuhan/sugar',
+                name: 'daftar-sugar-level',
+                component: () => import("@/pages/dashboard/kategori_kebutuhan/Sugar/Index.vue"),
+            },
 
+            // pembelian
+            {
+                path: "/dashboard/pembelian",
+                name: "dashboard.pembelian",
+                component: () => import("@/pages/dashboard/pembelian/Index.vue"),
+                meta: {
+                    pageTitle: "List Menu",
+                    breadcrumbs: ["Pemesanan", "Menu"],
+                },
+            },
+            
             // riwayat pemesanan
             {
                 path: "/dashboard/riwayat-pemesanan",

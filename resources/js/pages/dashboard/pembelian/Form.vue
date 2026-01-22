@@ -64,9 +64,9 @@
       <div class="d-grid gap-2 mt-3">
         <img src="/media/iconWarung.png" class="mx-auto d-block" style="width: 100px;">
       </div>
-      <h5 class="text-center mb-3 fw-bold">Berkah Warung Emak </h5>
+      <h5 class="text-center mb-3 fw-bold">Kalcer Place </h5>
       <div class="text-center" style="font-family: monospace;">
-        <p>Jl.Salman Aselole</p>
+        <p>JL. Tentara Genie Pelajar No.26,Petemon,Kec.Sawahan,Surabaya</p>
         <p> No. Telp 0851-9834-2110</p>
       </div>
       <hr>

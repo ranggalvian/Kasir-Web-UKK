@@ -1,31 +1,28 @@
 <script setup lang="ts">
 import { h, ref, watch } from "vue";
 import { useDelete } from "@/libs/hooks";
-import FormCupSize from "./FormCupSize.vue"; // Form khusus cup size
+import Form from "./form.vue";
 import { createColumnHelper } from "@tanstack/vue-table";
-import type { CupSize } from "@/types/cupSize"; // buat type baru
-import axios from "@/libs/axios";
+import type { User } from "@/types";
 
-const column = createColumnHelper<CupSize>();
+const column = createColumnHelper<User>();
 const paginateRef = ref<any>(null);
-const selected = ref<number | null>(null);
+const selected = ref<string>("");
 const openForm = ref<boolean>(false);
-const cupSizeList = ref<CupSize[]>([]);
 
 const { delete: deleteCupSize } = useDelete({
     onSuccess: () => paginateRef.value.refetch(),
 });
-
+// BAGIAN USER
 const columns = [
     column.accessor("no", {
         header: "No",
-        cell: (cell) => cell.row.index + 1,
     }),
-    column.accessor("cup-size", {
-        header: "Cup Size",
+    column.accessor("name", {
+        header: "Nama",
     }),
-    column.accessor("sugar-level", {
-        header: "Sugar Level",
+    column.accessor("extra_price", {
+        header: "Extra price",
     }),
     column.accessor("id", {
         header: "Aksi",
@@ -46,7 +43,8 @@ const columns = [
                     "button",
                     {
                         class: "btn btn-sm btn-icon btn-danger",
-                        onClick: () => deleteCupSize(`/master/cup-size/${cell.getValue()}`),
+                        onClick: () =>
+                            deleteCupSize(`/cup-sizes/${cell.getValue()}`),
                     },
                     h("i", { class: "la la-trash fs-2" })
                 ),
@@ -58,15 +56,15 @@ const refresh = () => paginateRef.value.refetch();
 
 watch(openForm, (val) => {
     if (!val) {
-        selected.value = null;
+        selected.value = "";
     }
     window.scrollTo(0, 0);
 });
-</script>   
+</script>
 
 <template>
-    <FormCupSize 
-        :selected="selected" 
+    <Form
+        :selected="selected"
         @close="openForm = false"
         v-if="openForm"
         @refresh="refresh"
@@ -74,21 +72,22 @@ watch(openForm, (val) => {
 
     <div class="card">
         <div class="card-header align-items-center">
-            <h2 class="mb-0">List Cup Size</h2>
-            <button type="button"
+            <h2 class="mb-0">List Users</h2>
+            <button
+                type="button"
                 class="btn btn-sm btn-primary ms-auto"
                 v-if="!openForm"
                 @click="openForm = true"
             >
-                Tambah  
+                Tambah
                 <i class="la la-plus"></i>
             </button>
         </div>
         <div class="card-body">
             <paginate
                 ref="paginateRef"
-                id="table-cup-size"
-                url="/master/cup-size"
+                id="table-cupsizes"
+                url="cup-sizes"
                 :columns="columns"
             ></paginate>
         </div>

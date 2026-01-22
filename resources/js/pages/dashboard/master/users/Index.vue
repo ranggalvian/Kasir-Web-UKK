@@ -16,7 +16,7 @@ const { delete: deleteUser } = useDelete({
 // BAGIAN USER
 const columns = [
     column.accessor("no", {
-        header: "#",
+        header: "No",
     }),
     column.accessor("name", {
         header: "Nama",

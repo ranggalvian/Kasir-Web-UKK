@@ -25,6 +25,17 @@ class PaymentController extends Controller
 
         $orderId = 'ORDER-' . time();
 
+        $items = [];
+
+        foreach ($request->detail_produk as $item) {
+            $items[] = [
+                'id' => $item['id_produk'] ?? uniqid(),  
+                'price' => $item['price'],
+                'quantity' => $item['quantity'],
+                'name' => $item['name'],
+            ];
+        }
+
         $params = [
             'transaction_details' => [
                 'order_id' => $orderId,
@@ -35,7 +46,7 @@ class PaymentController extends Controller
             'expiry' => [
                 'start_time' => date("Y-m-d H:i:s O"),
                 'duration' => 5,
-                'unit' => 'minute'    
+                'unit' => 'minute'
             ]
         ];
 

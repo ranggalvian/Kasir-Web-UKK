@@ -16,13 +16,13 @@ const { delete: deleteUser } = useDelete({
 // BAGIAN ROLE
 const columns = [
     column.accessor("no", {                             
-        header: "#",
+        header: "No",
     }),
     column.accessor("name", {
-        header: "Nama",
+        header: "Role",
     }),
     column.accessor("full_name", {
-        header: "Full Nama",
+        header: "Role Description",
     }),
     column.accessor("id", {
         header: "Aksi",

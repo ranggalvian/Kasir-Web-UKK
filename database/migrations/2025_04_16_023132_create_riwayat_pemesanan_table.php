@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('total_harga');
             $table->integer('bayar');
             $table->integer('kembalian');
-            $table->timestamps(); // created_at dan updated_at
+            $table->timestamps();
         });
     }
 

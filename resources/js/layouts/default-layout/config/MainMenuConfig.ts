@@ -44,7 +44,7 @@ const MainMenuConfig: Array<MenuItem> = [
                     },
                 ],
             },
-                // produk
+            // produk
             {
                 sectionTitle: "Info Menu",
                 route: "/info_produk",
@@ -61,14 +61,28 @@ const MainMenuConfig: Array<MenuItem> = [
                         name: "produk-kategori",
                         route: "/dashboard/info_produk/kategori",
                     },
- 
+
+                ],
+            },
+
+            // cup size dan sugar level
+            {
+                sectionTitle: "Kebutuhan Kategori",
+                route: "/kategori_kebutuhan",
+                keenthemesIcon: "shop",
+                name: "kebutuhan-kategori",
+                sub: [
                     {
-                        heading: "Input cup and sugar",
-                        name: "input-cup-and-sugar",
-                        route: "/dashboard/kategori_cup_sugar/cup_sugar",
+                        heading: "Kategori cup size",
+                        name: "daftar-cup-size",
+                        route: "/dashboard/kategori_kebutuhan/cup",
                     },
-                    
-                    
+                    {
+                        heading: "Kategori sugar level",
+                        name: "daftar-sugar-level",
+                        route: "/dashboard/kategori_kebutuhan/sugar",
+                    },
+
                 ],
             },
 

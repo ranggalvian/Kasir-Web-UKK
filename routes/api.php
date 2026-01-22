@@ -11,7 +11,10 @@ use App\Http\Controllers\DetailPemesananController;
 use App\Http\Controllers\RiwayatPemesananController;
 use App\Http\Controllers\StatistikController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\CupSizeController;
+use App\Http\Controllers\SugarLevelController;
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -30,7 +33,7 @@ Route::middleware(['auth', 'json'])->prefix('auth')->group(function () {
     Route::delete('logout', [AuthController::class, 'logout']);
     Route::get('me', [AuthController::class, 'me']);
 });
-
+    
 Route::prefix('setting')->group(function () {
     Route::get('', [SettingController::class, 'index']);
 });
@@ -62,15 +65,13 @@ Route::middleware(['auth', 'verified', 'json'])->group(function () {
             Route::get('produk/all', [ProdukController::class, 'get'])->withoutMiddleware('can:daftar-produk');
             Route::get('kategori/all', [KategoriController::class, 'get'])->withoutMiddleware('can:daftar-produk');
             Route::put('produk/switch/{id_produk}', [ProdukController::class, 'Ketersediaan']);
-            
+
             // Route lainnya    
-            
+
             Route::get('produk', [ProdukController::class, 'get'])->withoutMiddleware('can:daftar-produk');;
             Route::post('produk', [ProdukController::class, 'index'])->withoutMiddleware('can:daftar-produk');;
             Route::post('produk/store', [ProdukController::class, 'store']);
             Route::apiResource('produk', ProdukController::class)->except(['index', 'store']);
-            
-
         });
 
         Route::middleware('can:produk-kategori')->group(function () {
@@ -80,23 +81,35 @@ Route::middleware(['auth', 'verified', 'json'])->group(function () {
             Route::apiResource('kategori', KategoriController::class)->except(['index', 'store']);
         });
         Route::middleware('can:pembelian-produk')->group(function () {
-        Route::get('pembelian', [PembelianController::class, 'index']);
-        Route::post('pembelian', [PembelianController::class, 'store']);
-        Route::delete('pembelian/{id}', [PembelianController::class, 'destroy']);
-        Route::get('pembelian/produk', [PembelianController::class, 'dataProduk']);
-        
+            Route::get('pembelian', [PembelianController::class, 'index']);
+            Route::post('pembelian', [PembelianController::class, 'store']);
+            Route::delete('pembelian/{id}', [PembelianController::class, 'destroy']);
+            Route::get('pembelian/produk', [PembelianController::class, 'dataProduk']);
         });
 
         Route::middleware('can:pembelian-produk')->group(function () {
             Route::post('riwayat-pemesanan', [RiwayatPemesananController::class, 'store']);
             Route::get('riwayat-pemesanan', [RiwayatPemesananController::class, 'index']);
         });
-        });
-        Route::prefix('statistik')->group(function () {
+    });
+    Route::prefix('statistik')->group(function () {
         Route::get('/harian', [StatistikController::class, 'harian']);
         Route::get('/grafik', [StatistikController::class, 'grafik']);
         Route::get('/metode', [StatistikController::class, 'metodePembayaran']);
-        });
+    });
 
-        Route::post('/transaksi/snap', [PaymentController::class, 'createCharge']);
+    Route::post('/transaksi/snap', [PaymentController::class, 'createCharge']);
+
+    Route::get('/cup-sizes/get', [CupSizeController::class, 'get']);
+    Route::apiResource('/cup-sizes', CupSizeController::class);
+
+
+    // Route::get('cup-sizes', [CupSizeController::class, 'get']);
+    // Route::post('cup-sizes', [CupSizeController::class, 'index']);
+    // Route::delete('cup-sizes/{cupSize}', [CupSizeController::class, 'destroy']);
+    // Route::post('cup-sizes/store', [CupSizeController::class, 'store']);
+
+    // Route::apiResource('cup-sizes',CupSizeController::class);
+    // Route::post('/harian', [CupSizeController::class, 'index']);
+    Route::apiResource('sugar-levels', SugarLevelController::class);
 });
